@@ -1309,34 +1309,22 @@ public class DemoApplication {
         String[] subject = outlier_data.at("subject").asStrings();
         double[] time = outlier_data.at("time").asDoubles();
         double[] val = outlier_data.at("val").asDoubles();
-       // double[] residuals = outlier_data.at("residuals").asDoubles();
-      //  int[] outlier = outlier_data.at("outlier").asIntegers();
-//
-//        
-//        // print the results
+        double[] residuals = outlier_data.at("residuals").asDoubles();
+        int[] outlier = outlier_data.at("outlier").asIntegers();
+
+       
+        // print the results
         System.out.println(Arrays.toString(site));
         System.out.println(Arrays.toString(subject));
         System.out.println(Arrays.toString(time));
         System.out.println(Arrays.toString(val));
-     //   System.out.println(Arrays.toString(residuals));
-    //   System.out.println(Arrays.toString(outlier));
+        System.out.println(Arrays.toString(residuals));
+        System.out.println(Arrays.toString(outlier));
         
     }
  
 }
-//
-//public class DemoApplication {
-//	 
-//    public static void main(String[] args) throws RserveException,
-//            REXPMismatchException {
-//        RConnection c = new RConnection();
-//        REXP x = c.eval("R.version.string");
-//        double d[] = c.eval("rnorm(10)").asDoubles();
-//        System.out.println(d);
-//        System.out.println(x.asString());
-//        
-//    }
-//}
+
 
 //@Controller
 //@SpringBootApplication
