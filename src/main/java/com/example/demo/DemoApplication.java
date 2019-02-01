@@ -1,8 +1,9 @@
 package com.example.demo;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Arrays;
 
-import org.rosuda.REngine.REXPLogical;
 import org.rosuda.REngine.REXPMismatchException;
 import org.rosuda.REngine.RList;
 import org.rosuda.REngine.Rserve.RConnection;
@@ -13,10 +14,17 @@ public class DemoApplication {
     public static void main(String[] args) throws RserveException,
             REXPMismatchException {
         RConnection c = new RConnection();
-        // source the longitudinal outlier function - could figure out relative but in a hurry
         
-        c.eval("source(\"C:/Users/spburns/Documents/workspace-sts-3.9.4.RELEASE/demo/src/main/resources/R/lmer_outlier.R\")");  
- 
+        // source the longitudinal outlier function
+        Path currentRelativePath = Paths.get("");
+        String currentAbsolutePath = currentRelativePath.toAbsolutePath().toString().replace("\\", "/"); // R wants those forward slashes
+        String scriptPath = currentAbsolutePath + "/src/main/resources/R/lmer_outlier.R";
+        
+        c.assign("scriptPath", scriptPath);
+        
+        c.eval("source(scriptPath)");  
+        
+       // Create String with fake longitudinal data
         String data = new String("subject,time,site,val\n" + // it'll be a string coming in initially anyways
         		"1,9.88E+98,A,5.849090407\n" + 
         		"300012,0.979025851,A,5.849090407\n" + 
@@ -1301,9 +1309,12 @@ public class DemoApplication {
         c.assign("cutoff", cutoff);
         c.assign("data", data);
                 
-      
+        long startTime = System.currentTimeMillis();
         // call the function
         RList outlier_data = c.eval("detect_outlier(data,cutoff)").asList();
+        long elapsedTime = System.currentTimeMillis() - startTime;
+        System.out.println("Total elapsed request/response time in milliseconds: " + elapsedTime); // benchmarking
+        
         
         String[] site = outlier_data.at("site").asStrings();
         String[] subject = outlier_data.at("subject").asStrings();
@@ -1313,7 +1324,7 @@ public class DemoApplication {
         int[] outlier = outlier_data.at("outlier").asIntegers();
 
        
-        // print the results
+        // print cols from returned data set
         System.out.println(Arrays.toString(site));
         System.out.println(Arrays.toString(subject));
         System.out.println(Arrays.toString(time));
