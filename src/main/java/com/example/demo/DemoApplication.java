@@ -8,11 +8,22 @@ import org.rosuda.REngine.REXPMismatchException;
 import org.rosuda.REngine.RList;
 import org.rosuda.REngine.Rserve.RConnection;
 import org.rosuda.REngine.Rserve.RserveException;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
 
-
+@Controller
+@SpringBootApplication
 public class DemoApplication {
+	
+	static double[] residuals;
+	
     public static void main(String[] args) throws RserveException,
             REXPMismatchException {
+    	SpringApplication.run(DemoApplication.class, args);
+    	
         RConnection c = new RConnection();
         
         // source the longitudinal outlier function
@@ -1320,7 +1331,7 @@ public class DemoApplication {
         String[] subject = outlier_data.at("subject").asStrings();
         double[] time = outlier_data.at("time").asDoubles();
         double[] val = outlier_data.at("val").asDoubles();
-        double[] residuals = outlier_data.at("residuals").asDoubles();
+        residuals = outlier_data.at("residuals").asDoubles();
         int[] outlier = outlier_data.at("outlier").asIntegers();
 
        
@@ -1334,27 +1345,12 @@ public class DemoApplication {
         
     }
  
+    @RequestMapping("/")
+	@ResponseBody
+	double[] home() {
+		return residuals; // print residuals to web page because why not
+	}
+    
+    
 }
-
-
-//@Controller
-//@SpringBootApplication
-//public class DemoApplication {
-//
-//	@RequestMapping("/")
-//	@ResponseBody
-//	String home() {
-//		
-//		RConnection c = new RConnection();
-//		REXP x = c.eval("R.version.string");
-//		System.out.println(x.asString());
-//		
-//		return "Greetings from Java Tutorial Network";
-//	}
-//	
-//	public static void main(String[] args) {
-//		SpringApplication.run(DemoApplication.class, args);
-//	}
-//
-//}
 
