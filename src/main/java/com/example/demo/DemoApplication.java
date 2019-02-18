@@ -20,9 +20,8 @@ public class DemoApplication {
 	
 	static double[] residuals;
 	
-    public static void main(String[] args) throws RserveException,
+    public static void check(int iterations) throws RserveException,
             REXPMismatchException {
-    	SpringApplication.run(DemoApplication.class, args);
     	
         RConnection c = new RConnection();
         
@@ -1322,11 +1321,17 @@ public class DemoApplication {
                 
         long startTime = System.currentTimeMillis();
         // call the function
-        RList outlier_data = c.eval("detect_outlier(data,cutoff)").asList();
-        long elapsedTime = System.currentTimeMillis() - startTime;
-        System.out.println("Total elapsed request/response time in milliseconds: " + elapsedTime); // benchmarking
         
+        RList outlier_data = null;
+        long elapsedTime;
         
+        for (int i = 0; i < iterations; i++) {
+        outlier_data = c.eval("detect_outlier(data,cutoff)").asList();
+        elapsedTime = System.currentTimeMillis() - startTime;
+        System.out.println("Cumulative elapsed request/response time in milliseconds: " + elapsedTime); // benchmarking
+        }
+        
+ 
         String[] site = outlier_data.at("site").asStrings();
         String[] subject = outlier_data.at("subject").asStrings();
         double[] time = outlier_data.at("time").asDoubles();
@@ -1336,20 +1341,35 @@ public class DemoApplication {
 
        
         // print cols from returned data set
-        System.out.println(Arrays.toString(site));
-        System.out.println(Arrays.toString(subject));
-        System.out.println(Arrays.toString(time));
-        System.out.println(Arrays.toString(val));
-        System.out.println(Arrays.toString(residuals));
-        System.out.println(Arrays.toString(outlier));
+//        System.out.println(Arrays.toString(site));
+//        System.out.println(Arrays.toString(subject));
+//        System.out.println(Arrays.toString(time));
+//        System.out.println(Arrays.toString(val));
+//        System.out.println(Arrays.toString(residuals));
+//        System.out.println(Arrays.toString(outlier));
         
     }
  
+    public static void main(String[] args) throws RserveException,
+    REXPMismatchException {
+    	SpringApplication.run(DemoApplication.class, args);
+    	
+    	for (int i=0;i<10;i++) {
+    		long startTime = System.currentTimeMillis();
+    		check(1000000); // 100 concurrent* requests   *on nix os
+    	    long elapsedTime = System.currentTimeMillis() - startTime;
+            System.out.println("check() completion time in milliseconds: " + elapsedTime); // benchmarking
+     	
+    	}
+
+    }
+    
     @RequestMapping("/")
 	@ResponseBody
 	double[] home() {
 		return residuals; // print residuals to web page because why not
 	}
+    
     
     
 }
